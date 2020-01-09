@@ -67,7 +67,7 @@ def mul_const_with_matrix(matrix: Matrix, const):
     res = Matrix(n_rows=matrix.n_rows, n_cols=matrix.n_cols)
     for i in range(matrix.n_rows):
         for j in range(matrix.n_cols):
-            res.arr[i] = matrix.arr[i] * const
+            res.arr[i][j] = matrix.arr[i][j] * const
 
     return res
 

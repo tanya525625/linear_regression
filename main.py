@@ -34,7 +34,6 @@ def plot_regression_line(x, y, y_pred):
     plt.scatter(x, y, color="c")
     # regression line
     plt.plot(x, y_pred, color="g")
-
     plt.show()
 
 
@@ -52,10 +51,17 @@ if __name__  == "__main__":
     metric = rmse(y_pred=y_pred, y_true=y_test.arr)
     print(metric)
 
-    alpha = 2
-    l2r = L2Regularisation(alpha)
-    l2r.fit(X_train, y_train)
-    y_pred = l2r.predict(X_train)
-    metric = rmse(y_pred=y_pred, y_true=y_test.arr)
-    print(metric)
+    min_alpha = -90
+    max_alpha = 100
+    alpha_list = list(range(min_alpha, max_alpha))
+    metrics_list = []
+
+    for alpha in alpha_list:
+        l2r = L2Regularisation(alpha)
+        l2r.fit(X_train, y_train)
+        y_pred = l2r.predict(X_train)
+        metrics_list.append(rmse(y_pred=y_pred, y_true=y_test.arr))
+
+    plt.plot(alpha_list, metrics_list, color="r")
+    plt.show()
 
