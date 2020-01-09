@@ -37,6 +37,20 @@ def plot_regression_line(x, y, y_pred):
     plt.show()
 
 
+def analyze_regularisation(min_alpha, max_alpha):
+    alpha_list = list(range(min_alpha, max_alpha))
+    metrics_list = []
+
+    for alpha in alpha_list:
+        l2r = L2Regularisation(alpha)
+        l2r.fit(X_train, y_train)
+        y_pred = l2r.predict(X_train)
+        metrics_list.append(rmse(y_pred=y_pred, y_true=y_test.arr))
+
+    plt.plot(alpha_list, metrics_list, color="r")
+    plt.show()
+
+
 if __name__  == "__main__":
     n_samples = 350
     n_features = 1
@@ -49,19 +63,10 @@ if __name__  == "__main__":
     y_pred = model.predict(X_train)
     plot_regression_line(X_train.arr, y_train.arr, y_pred)
     metric = rmse(y_pred=y_pred, y_true=y_test.arr)
-    print(metric)
+    print(f'RMSE for linear regression = {metric}')
 
     min_alpha = -90
     max_alpha = 100
-    alpha_list = list(range(min_alpha, max_alpha))
-    metrics_list = []
+    analyze_regularisation(min_alpha, max_alpha)
 
-    for alpha in alpha_list:
-        l2r = L2Regularisation(alpha)
-        l2r.fit(X_train, y_train)
-        y_pred = l2r.predict(X_train)
-        metrics_list.append(rmse(y_pred=y_pred, y_true=y_test.arr))
-
-    plt.plot(alpha_list, metrics_list, color="r")
-    plt.show()
 
