@@ -20,7 +20,7 @@ class LinearRegression:
         return y_pred.arr
 
 
-def _find_coeff(X: Matrix, y: Matrix):
+def _find_coeff(X: Matrix, y: Matrix, ):
     # weight matrix
 
     transposed_X = X.transpose()

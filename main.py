@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 
 from tools.matrix import Matrix
 from tools.linear_regression import LinearRegression
+from tools.l2_regularisation import L2Regularisation
 from tools.functions import rmse
 
 
@@ -43,15 +44,18 @@ if __name__  == "__main__":
 
     X, y = generate_dataset(n_samples, n_features)
     X_train, y_train, X_test, y_test = split_test_and_train(X, y, 0.3)
-    # print(X.cols_count)
-    # print(X.rows_count)
-    # print(y.n_rows)
-    # print(X.n_rows)
 
     model = LinearRegression()
     model.fit(X_train, y_train)
     y_pred = model.predict(X_train)
     plot_regression_line(X_train.arr, y_train.arr, y_pred)
+    metric = rmse(y_pred=y_pred, y_true=y_test.arr)
+    print(metric)
+
+    alpha = 2
+    l2r = L2Regularisation(alpha)
+    l2r.fit(X_train, y_train)
+    y_pred = l2r.predict(X_train)
     metric = rmse(y_pred=y_pred, y_true=y_test.arr)
     print(metric)
 
