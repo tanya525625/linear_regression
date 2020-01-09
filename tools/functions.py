@@ -64,6 +64,17 @@ def paste_ones_in_the_beginning(matrix: Matrix):
     return Matrix(new_arr)
 
 
+def rmse(y_pred, y_true):
+    rmse = 0
+    n =  len(y_pred)
+
+    for i in range(n):
+        rmse += (y_true[i] - y_pred[i]) ** 2
+
+    return (rmse / n) ** (1 / 2)
+
+
+
 
 # vect1 = [0, 1, 2, 3]
 # vect1 = Matrix(vect1)

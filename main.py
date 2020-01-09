@@ -3,11 +3,12 @@ import matplotlib.pyplot as plt
 
 from tools.matrix import Matrix
 from tools.linear_regression import LinearRegression
+from tools.functions import rmse
 
 
 def generate_dataset(n_samples, n_features):
     X, y = make_regression(n_samples=n_samples,
-                           n_features=n_features)
+                           n_features=n_features, noise=20)
 
     if n_features == 1:
         X = [float(el) for el in X]
@@ -17,23 +18,40 @@ def generate_dataset(n_samples, n_features):
     return X, y
 
 
+def split_test_and_train(X: Matrix, y: Matrix, proportion):
+    end_train_point = int(X.n_rows * proportion)
+    X_train = Matrix(X.arr[:end_train_point])
+    y_train = Matrix(y.arr[:end_train_point])
+    X_test = Matrix(X.arr[end_train_point:])
+    y_test = Matrix(X.arr[end_train_point:])
+
+    return X_train, y_train, X_test, y_test
+
+
+def plot_regression_line(x, y, y_pred):
+    # starting position of points
+    plt.scatter(x, y, color="c")
+    # regression line
+    plt.plot(x, y_pred, color="g")
+
+    plt.show()
+
+
 if __name__  == "__main__":
-    n_samples = 10
+    n_samples = 350
     n_features = 1
 
     X, y = generate_dataset(n_samples, n_features)
+    X_train, y_train, X_test, y_test = split_test_and_train(X, y, 0.3)
     # print(X.cols_count)
     # print(X.rows_count)
     # print(y.n_rows)
     # print(X.n_rows)
 
     model = LinearRegression()
-    model.fit(X, y)
-    print(X.n_cols)
-    print(model.b.arr)
-    # y_pred = model.predict(X)
-    # print(y_pred)
-
-    # построение линии регрессии
-    # plt.plot(X.arr, y_pred, color="g")
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_train)
+    plot_regression_line(X_train.arr, y_train.arr, y_pred)
+    metric = rmse(y_pred=y_pred, y_true=y_test.arr)
+    print(metric)
 
