@@ -1,5 +1,7 @@
 from tools.matrix import Matrix
 
+from copy import deepcopy
+
 
 def multiply_vectors(vect1: Matrix, vect2: Matrix):
     if vect1.n_cols != 1 or vect2.n_cols != 1:
@@ -38,6 +40,29 @@ def sum_const_with_vector(vector: Matrix, const):
         res.arr[i] = vector.arr[i] + const
 
     return res
+
+
+def ones(size):
+    new_list = []
+    for i in range(size):
+        new_list.append(1)
+
+    return new_list
+
+
+def paste_ones_in_the_beginning(matrix: Matrix):
+    #new_matrix = Matrix(n_rows=matrix.n_rows, n_cols=matrix.n_cols + 1)
+    arr = deepcopy(matrix.arr)
+
+    new_arr = []
+    for i, row in enumerate(arr):
+        if isinstance(row, float):
+            new_arr.append([1] + [row])
+        else:
+            new_arr.append([1] + row.tolist())
+
+    return Matrix(new_arr)
+
 
 
 # vect1 = [0, 1, 2, 3]

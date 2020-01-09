@@ -2,7 +2,6 @@ from sklearn.datasets import make_regression
 import matplotlib.pyplot as plt
 
 from tools.matrix import Matrix
-from tools.linear_regression import _find_coeff
 from tools.linear_regression import LinearRegression
 
 
@@ -30,7 +29,10 @@ if __name__  == "__main__":
 
     model = LinearRegression()
     model.fit(X, y)
-    y_pred = model.predict(X)
+    print(X.n_cols)
+    print(model.b.arr)
+    # y_pred = model.predict(X)
+    # print(y_pred)
 
     # построение линии регрессии
     # plt.plot(X.arr, y_pred, color="g")

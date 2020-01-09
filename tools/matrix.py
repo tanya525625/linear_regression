@@ -100,8 +100,8 @@ class Matrix:
 
         # special case for 2x2 matrix:
         if self.n_cols == 2:
-            return [[arr[1][1] / det, -1 * arr[0][1] / det],
-                    [-1 * arr[1][0] / det, arr[0][0] / det]]
+            return Matrix([[arr[1][1] / det, -1 * arr[0][1] / det],
+                    [-1 * arr[1][0] / det, arr[0][0] / det]])
 
         union_matrix = []
         for r in range(self.n_cols):
@@ -171,35 +171,38 @@ def mul_const_with_matrix(matrix: Matrix, const):
 
     return res
 
-def multiply_matrixes(matr1: Matrix, matr2: Matrix):
-    new_matrix = Matrix(matr1.n_rows, matr2.n_cols)
+
+def multiply_matrices(matr1: Matrix, matr2: Matrix):
+
+    new_matrix = Matrix(n_rows=matr1.n_rows, n_cols=matr2.n_cols)
     if matr1.n_cols != matr2.n_rows:
-        raise ValueError('Matrixes are')
+        raise ValueError('Matrices are not consistent')
+    for i in range(matr1.n_rows):
+        for j in range(matr2.n_cols):
+            for k in range(matr2.n_rows):
+                #print(matr1.arr)
+                #print(matr2.arr[k][j])
+                new_matrix.arr[i][j] += matr1.arr[i][k] * matr2.arr[k][j]
 
-    if (a1.m == a2.n)
-    {
-    for (int i = 0; i < a1.n; i++)
-    {
-    for (int j = 0; j < a2.m; j++)
-    {
-    for (int k = 0; k < a2.n; k++)
-    {
-    res.arr[i][j] += a1.arr[i][k] * a2.arr[k][j];
-    }
-    }
-    }
+    return new_matrix
 
-    }
-    / * else
-    {
-    cout << "ERROR. Matrices can not be multiplied" << endl;
-    } * /
-    res.nullTest();
-    return res;
+
+def multiply_matrix_and_vector(matrix: Matrix, vector: Matrix):
+    new_matrix = Matrix(n_rows=matrix.n_rows, n_cols=1)
+    if matrix.n_cols != vector.n_rows:
+        raise ValueError('Matrices are not consistent')
+    for i in range(matrix.n_rows):
+        for k in range(vector.n_rows):
+            new_matrix.arr[i] += matrix.arr[i][k] * vector.arr[k]
+
+    return new_matrix
 
 
 
-    a = 3
+
+
+
+a = 3
 b = 3
 r = 0  # Чтобы было, чем заполнять
 mas = []
@@ -231,4 +234,5 @@ for i in range(a):
 # print(vect.sum_all_els())
 # print(vect.n_cols)
 # print(vect.find_mean_in_vect())
+
 
