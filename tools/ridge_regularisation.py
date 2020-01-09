@@ -3,7 +3,7 @@ from tools.functions import paste_ones_in_the_beginning, \
     make_identity_matrix, sum_matrices, mul_const_with_matrix
 
 
-class L2Regularisation:
+class RidgeRegularisation:
     def __init__(self, alpha=1):
         # weight matrix
         self.b = None

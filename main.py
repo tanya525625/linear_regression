@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 from tools.matrix import Matrix
 from tools.linear_regression import LinearRegression
-from tools.l2_regularisation import L2Regularisation
+from tools.ridge_regularisation import RidgeRegularisation
 from tools.functions import rmse
 
 
@@ -42,7 +42,7 @@ def analyze_regularisation(min_alpha, max_alpha):
     metrics_list = []
 
     for alpha in alpha_list:
-        l2r = L2Regularisation(alpha)
+        l2r = RidgeRegularisation(alpha)
         l2r.fit(X_train, y_train)
         y_pred = l2r.predict(X_train)
         metrics_list.append(rmse(y_pred=y_pred, y_true=y_test.arr))
