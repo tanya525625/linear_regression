@@ -1,6 +1,6 @@
 from tools.matrix import Matrix, multiply_matrices, multiply_matrix_and_vector
-from tools.functions import paste_ones_in_the_beginning, \
-    make_identity_matrix, sum_matrices, mul_const_with_matrix
+from tools.matrix import make_identity_matrix, \
+    sum_matrices, mul_const_with_matrix, paste_ones_in_the_beginning
 
 
 class RidgeRegularisation:

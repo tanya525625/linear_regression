@@ -3,6 +3,8 @@ import numpy as np
 
 from copy import deepcopy
 
+from tools.functions import sign
+
 
 class Matrix:
     def __init__(self, array: list = None, n_rows: int = None, n_cols: int = None):
@@ -56,6 +58,24 @@ class Matrix:
 
         return new_arr
 
+    def normalize_matrix(self):
+        new_arr = []
+        for row in self.arr:
+            row_matr = Matrix(row)
+            row_mean = row_matr.find_mean_in_vect()
+            row_std = row_matr.find_std_in_vect()
+            new_value = sum_const_with_vector(row_matr, -row_mean)
+
+            try:
+                1 / row_std
+            except ZeroDivisionError:
+                new_value = [0] * self.n_cols
+            else:
+                new_value = mul_const_with_vector(new_value, 1 / row_std).arr
+            new_arr.append(new_value)
+        return Matrix(new_arr)
+
+
     def determinant(self):
         det = 1
         triag_matr, sign = self.make_triangular()
@@ -84,6 +104,10 @@ class Matrix:
         new_matrix.arr = arr
 
         return new_matrix, sign
+
+    def sign_vector(self):
+        return Matrix([sign(x) for x in self.arr])
+
 
     def make_minor(self, i, j):
         minor = Matrix(n_rows=self.n_rows - 1, n_cols=self.n_cols - 1)
@@ -116,6 +140,26 @@ class Matrix:
         union_matrix = mul_const_with_matrix(union_matrix, 1 / det)
 
         return union_matrix
+
+    def transpose_vector(self):
+        self.n_rows, self.n_cols = self.n_cols, self.n_rows
+
+        return self
+
+    def find_std_in_vect(self):
+        mean = self.find_mean_in_vect()
+
+        deviation_sum = Matrix([(x - mean) ** 2 for x in self.arr]).sum_all_els()
+
+        return deviation_sum / self.n_rows
+
+    def pow_matrix(self, power: int):
+        new_matrix = deepcopy(self.arr)
+        for i in range(self.n_rows):
+            for j in range(self.n_cols):
+                new_matrix[i][j] = self.arr[i][j] ** power
+
+        return Matrix(new_matrix)
 
 
 def _make_zero_array(n_rows, n_cols):
@@ -150,8 +194,12 @@ def _change_rows_due_to_max(array: Matrix, curr_k, sign):
 
 
 def mul_const_with_vector(vector, const):
-    if vector.n_cols != 1:
+    if vector.n_cols != 1 and vector.n_rows != 1:
         raise TypeError("Vector hasn't dimension 1")
+    is_transposed = False
+    if vector.n_cols != 1:
+        is_transposed = True
+        vector.transpose_vector()
 
     res = Matrix(n_rows=vector.n_rows, n_cols=vector.n_cols)
     for i in range(vector.n_rows):
@@ -160,6 +208,8 @@ def mul_const_with_vector(vector, const):
         else:
             res.arr[i] = vector.arr[i] * const
 
+    if is_transposed:
+        res.transpose_vector()
     return res
 
 
@@ -180,8 +230,6 @@ def multiply_matrices(matr1: Matrix, matr2: Matrix):
     for i in range(matr1.n_rows):
         for j in range(matr2.n_cols):
             for k in range(matr2.n_rows):
-                #print(matr1.arr)
-                #print(matr2.arr[k][j])
                 new_matrix.arr[i][j] += matr1.arr[i][k] * matr2.arr[k][j]
 
     return new_matrix
@@ -198,41 +246,117 @@ def multiply_matrix_and_vector(matrix: Matrix, vector: Matrix):
     return new_matrix
 
 
+def vectors_subtraction(vect1: Matrix, vect2: Matrix):
+    if vect1.n_rows != vect2.n_rows:
+        raise ValueError('Dimensions are not equal')
+    if vect1.n_cols != 1 or vect2.n_cols != 1:
+        raise ValueError("Objects are not vectors")
+
+    return Matrix([x - y for x in vect1.arr for y in vect2.arr])
 
 
+def sum_vectors(vect1: Matrix, vect2: Matrix):
+    if vect1.n_rows != vect2.n_rows:
+        raise ValueError('Dimensions are not equal')
+    if vect1.n_cols != 1 or vect2.n_cols != 1:
+        raise ValueError("Objects are not vectors")
+
+    new_vect = []
+    for i in range(vect1.n_rows):
+        new_vect.append(vect1.arr[i] + vect2.arr[i])
+
+    return Matrix(new_vect)
 
 
-a = 3
-b = 3
-r = 0  # Чтобы было, чем заполнять
-mas = []
-for i in range(a):
-    mas.append([])
-    for j in range(b):
-        mas[i].append(r)
-        r += 1  # Чтобы заполнялось не одно и тоже
+def make_identity_matrix(dim):
+    identity_matr = Matrix(n_cols=dim, n_rows=dim)
+    for i in range(dim):
+        identity_matr.arr[i][i] = 1
+
+    return identity_matr
 
 
-# #mas = solve_gauss(mas)
-# mas = Matrix(mas)
-# #new_matrix = mas.make_triangular()
-# # new_matr = mas.transpose()
-# # print(new_matr.arr)
-#
-#
-# mas = [[1, 1, 19], [4, 4, 6], [6, 13, 8]]
-# mas = Matrix(mas)
-#
-#
-# print((mas.inverse()).arr)
-#
-# arr = Matrix(mas)
-# print(arr.arr)
-# print(arr.sum_all_els())
-# vect = [0, 1, 2, 3]
-# vect = Matrix(vect)
-# print(vect.sum_all_els())
-# print(vect.n_cols)
-# print(vect.find_mean_in_vect())
+def sum_matrices(matr1: Matrix, matr2: Matrix):
+    if matr1.n_rows != matr2.n_rows or matr1.n_cols != matr2.n_cols:
+        raise ValueError("Dimensions are not equal")
+
+    new_matrix = Matrix(n_rows=matr1.n_rows, n_cols=matr2.n_cols)
+
+    for i in range(matr1.n_rows):
+        for j in range(matr2.n_cols):
+            new_matrix.arr[i][j] = matr1.arr[i][j] + matr2.arr[i][j]
+
+    return new_matrix
 
 
+def multiply_vectors(vect1: Matrix, vect2: Matrix):
+    if vect1.n_cols != 1 or vect2.n_cols != 1:
+        raise TypeError("Vector hasn't dimension 1")
+
+    if vect1.n_rows != vect2.n_rows:
+        raise ValueError("Dimensions are not equal")
+
+    composition = Matrix(n_rows=vect1.n_rows, n_cols=vect2.n_cols)
+    for i in range(vect1.n_rows):
+        composition.arr[i] = vect1.arr[i] * vect2.arr[i]
+
+    return composition
+
+
+def vectors_subtraction(vect1, vect2):
+    if vect1.n_cols != 1 or vect2.n_cols != 1:
+        raise TypeError("Vector hasn't dimension 1")
+
+    if vect1.n_rows != vect2.n_rows:
+        raise ValueError("Dimensions are not equal")
+
+    subtraction = Matrix(n_rows=vect1.n_rows, n_cols=vect1.n_cols)
+    for i in range(vect1.n_rows):
+        subtraction.arr[i] = vect1.arr[i] - vect2.arr[i]
+
+    return subtraction
+
+
+def sum_const_with_vector(vector: Matrix, const):
+    if vector.n_cols != 1:
+        raise TypeError("Vector hasn't dimension 1")
+
+    res = Matrix(n_rows=vector.n_rows, n_cols=vector.n_cols)
+    for i in range(vector.n_rows):
+        res.arr[i] = vector.arr[i] + const
+
+    return res
+
+
+def mul_const_with_matrix(matrix: Matrix, const):
+    res = Matrix(n_rows=matrix.n_rows, n_cols=matrix.n_cols)
+    for i in range(matrix.n_rows):
+        for j in range(matrix.n_cols):
+            res.arr[i][j] = matrix.arr[i][j] * const
+
+    return res
+
+
+def mul_vector_to_matrix(vector: Matrix, matrix: Matrix):
+    if matrix.n_rows != vector.n_cols:
+        raise ValueError('Matrices are not consistent')
+
+    new_matrix = Matrix(n_rows=vector.n_rows, n_cols=matrix.n_cols)
+    for i in range(vector.n_rows):
+        for k in range(matrix.n_rows):
+            new_matrix.arr[i] += vector.arr[k] * matrix.arr[k][i]
+
+    return Matrix(new_matrix.arr[0])
+
+
+def paste_ones_in_the_beginning(matrix: Matrix):
+    arr = deepcopy(matrix.arr)
+
+    new_arr = []
+    for i, row in enumerate(arr):
+        if isinstance(row, float):
+            new_arr.append([1] + [row])
+        else:
+            new_arr.append([1] + row.tolist())
+
+    return Matrix(new_arr)

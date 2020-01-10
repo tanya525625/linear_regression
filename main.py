@@ -4,12 +4,13 @@ import matplotlib.pyplot as plt
 from tools.matrix import Matrix
 from tools.linear_regression import LinearRegression
 from tools.ridge_regularisation import RidgeRegularisation
+from tools.lasso_regularisation import LassoRegularisation
 from tools.functions import rmse
 
 
 def generate_dataset(n_samples, n_features):
     X, y = make_regression(n_samples=n_samples,
-                           n_features=n_features, noise=20)
+                           n_features=n_features, noise=10)
 
     if n_features == 1:
         X = [float(el) for el in X]
@@ -24,27 +25,43 @@ def split_test_and_train(X: Matrix, y: Matrix, proportion):
     X_train = Matrix(X.arr[:end_train_point])
     y_train = Matrix(y.arr[:end_train_point])
     X_test = Matrix(X.arr[end_train_point:])
-    y_test = Matrix(X.arr[end_train_point:])
+    y_test = Matrix(y.arr[end_train_point:])
 
     return X_train, y_train, X_test, y_test
 
 
-def plot_regression_line(x, y, y_pred):
-    # starting position of points
-    plt.scatter(x, y, color="c")
-    # regression line
-    plt.plot(x, y_pred, color="g")
-    plt.show()
+def plot_regression_line(x: Matrix, y: Matrix, y_pred: list):
+    if x.n_cols == 1:
+        # starting position of points
+        plt.scatter(x, y.arr, color="c")
+        # regression line
+        plt.plot(x, y_pred, color="g")
+        plt.show()
 
 
-def analyze_regularisation(min_alpha, max_alpha):
+def analyze_ridge_regularisation(min_alpha, max_alpha):
     alpha_list = list(range(min_alpha, max_alpha))
     metrics_list = []
 
     for alpha in alpha_list:
-        l2r = RidgeRegularisation(alpha)
-        l2r.fit(X_train, y_train)
-        y_pred = l2r.predict(X_train)
+        model = RidgeRegularisation(alpha=alpha)
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_train)
+        metrics_list.append(rmse(y_pred=y_pred, y_true=y_test.arr))
+
+    plt.plot(alpha_list, metrics_list, color="r")
+    plt.show()
+
+
+def analyze_lasso_regularisation(min_alpha, max_alpha, learning_rate, degree, iter_count):
+    alpha_list = list(range(min_alpha, max_alpha))
+    metrics_list = []
+
+    for alpha in alpha_list:
+        model = LassoRegularisation(alpha=alpha, learning_rate=learning_rate,
+                                    degree=degree, iter_count=iter_count)
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_train)
         metrics_list.append(rmse(y_pred=y_pred, y_true=y_test.arr))
 
     plt.plot(alpha_list, metrics_list, color="r")
@@ -53,7 +70,7 @@ def analyze_regularisation(min_alpha, max_alpha):
 
 if __name__  == "__main__":
     n_samples = 350
-    n_features = 1
+    n_features = 4
 
     X, y = generate_dataset(n_samples, n_features)
     X_train, y_train, X_test, y_test = split_test_and_train(X, y, 0.3)
@@ -61,12 +78,28 @@ if __name__  == "__main__":
     model = LinearRegression()
     model.fit(X_train, y_train)
     y_pred = model.predict(X_train)
-    plot_regression_line(X_train.arr, y_train.arr, y_pred)
+    plot_regression_line(X_train, y_train, y_pred)
     metric = rmse(y_pred=y_pred, y_true=y_test.arr)
     print(f'RMSE for linear regression = {metric}')
 
-    min_alpha = -90
+    min_alpha = -50
     max_alpha = 100
-    analyze_regularisation(min_alpha, max_alpha)
+    analyze_ridge_regularisation(min_alpha, max_alpha)
+
+    min_alpha = -50
+    max_alpha = 0
+    learning_rate = 0.1
+    degree = 4
+    iter_count = 50
+    analyze_lasso_regularisation(min_alpha, max_alpha, learning_rate, degree, iter_count)
+
+
+
+
+
+
+
+
+
 
 
