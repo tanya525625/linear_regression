@@ -21,7 +21,6 @@ class LinearRegression:
 
 def _find_coeff(X: Matrix, y: Matrix, ):
     # weight matrix
-
     transposed_X = X.transpose()
     composition = multiply_matrices(transposed_X, X)
     inversed_comp = composition.inverse()

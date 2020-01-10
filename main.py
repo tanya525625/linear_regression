@@ -103,7 +103,7 @@ def analyze_lasso_regularisation(min_alpha, max_alpha, learning_rate, degree, it
 
 if __name__  == "__main__":
     n_samples = 350
-    n_features = 1
+    n_features = 10
 
     X, y = generate_dataset(n_samples, n_features)
     X_train, y_train, X_test, y_test = split_test_and_train(X, y, 0.3)
@@ -122,17 +122,6 @@ if __name__  == "__main__":
     min_alpha = 1
     max_alpha = 50
     learning_rate = 0.1
-    degree = 4
-    iter_count = 100
+    degree = 13
+    iter_count = 1000
     analyze_lasso_regularisation(min_alpha, max_alpha, learning_rate, degree, iter_count)
-
-
-
-
-
-
-
-
-
-
-
