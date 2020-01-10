@@ -1,5 +1,8 @@
 from sklearn.datasets import make_regression
+import pylab
 import matplotlib.pyplot as plt
+
+from math import log
 
 from tools.matrix import Matrix
 from tools.linear_regression import LinearRegression
@@ -10,7 +13,7 @@ from tools.functions import rmse
 
 def generate_dataset(n_samples, n_features):
     X, y = make_regression(n_samples=n_samples,
-                           n_features=n_features, noise=10)
+                           n_features=n_features, noise=20)
 
     if n_features == 1:
         X = [float(el) for el in X]
@@ -43,21 +46,37 @@ def plot_regression_line(x: Matrix, y: Matrix, y_pred: list):
 
 def analyze_ridge_regularisation(min_alpha, max_alpha):
     alpha_list = list(range(min_alpha, max_alpha))
+    # alpha_list = [log(a) for a in alpha_list]
     metrics_list = []
+    weight_list = []
 
     for alpha in alpha_list:
         model = RidgeRegularisation(alpha=alpha)
         model.fit(X_train, y_train)
         y_pred = model.predict(X_train)
         metrics_list.append(rmse(y_pred=y_pred, y_true=y_test.arr))
+        weight_list.append(model.b.find_mean_in_vect())
 
+    pylab.figure(1)
     plt.plot(alpha_list, metrics_list, color="r")
+    plt.title("Ridge Regularisation metrics")
+    plt.xlabel("log(alpha)")
+    plt.ylabel("RMSE")
+
+    pylab.figure(2)
+    plt.title("Ridge Regularisation Weight coeff")
+    plt.xlabel("log(alpha)")
+    plt.ylabel("Weight coeff")
+    plt.plot(alpha_list, weight_list, color="c")
+
     plt.show()
 
 
 def analyze_lasso_regularisation(min_alpha, max_alpha, learning_rate, degree, iter_count):
     alpha_list = list(range(min_alpha, max_alpha))
     metrics_list = []
+    weight_list = []
+    alpha_list = [log(a) for a in alpha_list]
 
     for alpha in alpha_list:
         model = LassoRegularisation(alpha=alpha, learning_rate=learning_rate,
@@ -65,8 +84,20 @@ def analyze_lasso_regularisation(min_alpha, max_alpha, learning_rate, degree, it
         model.fit(X_train, y_train)
         y_pred = model.predict(X_train)
         metrics_list.append(rmse(y_pred=y_pred, y_true=y_test.arr))
+        weight_list.append(model.b.find_mean_in_vect())
 
+    pylab.figure(1)
     plt.plot(alpha_list, metrics_list, color="r")
+    plt.title("Lasso Regularisation metrics")
+    plt.xlabel("log(alpha)")
+    plt.ylabel("RMSE")
+
+    pylab.figure(2)
+    plt.title("Lasso Regularisation Weight coeff")
+    plt.xlabel("log(alpha)")
+    plt.ylabel("Weight coeff")
+    plt.plot(alpha_list, weight_list, color="c")
+
     plt.show()
 
 
@@ -84,15 +115,15 @@ if __name__  == "__main__":
     metric = rmse(y_pred=y_pred, y_true=y_test.arr)
     print(f'RMSE for linear regression = {metric}')
 
-    min_alpha = -50
-    max_alpha = 100
+    min_alpha = 1
+    max_alpha = 50
     analyze_ridge_regularisation(min_alpha, max_alpha)
 
-    min_alpha = -50
-    max_alpha = 0
+    min_alpha = 1
+    max_alpha = 50
     learning_rate = 0.1
     degree = 4
-    iter_count = 50
+    iter_count = 100
     analyze_lasso_regularisation(min_alpha, max_alpha, learning_rate, degree, iter_count)
 
 
