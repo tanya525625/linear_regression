@@ -33,9 +33,11 @@ def split_test_and_train(X: Matrix, y: Matrix, proportion):
 def plot_regression_line(x: Matrix, y: Matrix, y_pred: list):
     if x.n_cols == 1:
         # starting position of points
-        plt.scatter(x, y.arr, color="c")
+        print(len(y_pred))
+        plt.scatter(x.arr, y.arr, color="c")
         # regression line
-        plt.plot(x, y_pred, color="g")
+        plt.plot(x.arr, y_pred, color="g")
+
         plt.show()
 
 
@@ -70,7 +72,7 @@ def analyze_lasso_regularisation(min_alpha, max_alpha, learning_rate, degree, it
 
 if __name__  == "__main__":
     n_samples = 350
-    n_features = 4
+    n_features = 1
 
     X, y = generate_dataset(n_samples, n_features)
     X_train, y_train, X_test, y_test = split_test_and_train(X, y, 0.3)
